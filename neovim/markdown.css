@@ -1,0 +1,185 @@
+/* General body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff; /* Explicitly set to white for screens */
+    color: #333333;
+    /* line-height: 1.6; */
+    margin: 0;
+    padding: 20px;
+}
+
+/* Page margin and orphan headings control */
+@page {
+    margin: 0.5in; /* Example margin (the comment says 1-inch, but this is 0.25in) */
+}
+
+/* Prevent orphan headings at the bottom of a page */
+h2, h3, h4 {
+    page-break-after: avoid;
+}
+
+/* Print-specific styles */
+@media print {
+
+    /* Force printing of background colors (where supported) */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Force white background for the body */
+    body {
+        background-color: #ffffff !important;
+    }
+
+    /* Light (but not removed) background for code blocks/inline code
+       so highlights remain visible in print.
+       Remove borders to save ink. */
+    pre, code {
+        background-color: #ededed !important;
+        border: none !important;
+    }
+
+    /* Remove bold from inline code to reduce ink usage */
+    code {
+        font-weight: normal !important;
+    }
+
+    /* Lighten or remove blockquote background & border */
+    blockquote {
+        background-color: #ffffff !important;
+        border-left: 4px solid #aaa !important; /* lighter border for print */
+    }
+
+    /* Lighten link color and underline in print for clarity */
+    a {
+        color: #000000 !important;
+        text-decoration: underline !important;
+    }
+
+    /* Lighten table borders for print */
+    table th, table td {
+        border: 1px solid #ccc !important;
+    }
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 1.4em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+/* Remove auto-generated anchors/icons for headings */
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    text-decoration: none;
+    pointer-events: none;
+    display: none; /* Hides anchor icons or links */
+}
+
+/* Links */
+a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Code blocks and inline code */
+pre, code {
+    font-family: 'Courier New', monospace;
+    background-color: #e0e0e0;
+    color: #2c3e50;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-weight: bold;
+}
+
+pre {
+    border: 1px solid #ddd;
+    margin: 1.5em 0;
+    padding: 15px;
+}
+
+code {
+    background-color: #d6d6d6;
+    color: #2c3e50;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 1.5em 0;
+    padding: 10px 15px;
+    color: #555555;
+    background-color: #f9f9f9;
+    font-style: italic;
+}
+
+/* Lists */
+ul, ol {
+    padding-left: 30px; /* General padding for lists */
+}
+
+li {
+    margin: 0.25em 0; /* Reduced spacing between list items */
+    margin-left: 20px; /* Explicit left margin to ensure indentation */
+}
+
+/* Nested list items */
+ul ul li, ol ol li, ul ol li, ol ul li {
+    margin: 0.2em 0; /* Further reduce spacing for nested list items */
+    margin-left: 15px; /* Smaller left margin for better alignment */
+}
+
+/* Nested lists */
+ul ul, ol ul, ol ol {
+    margin-left: 30px; /* Further left margin for nested lists */
+    padding-left: 0; /* Remove padding to avoid doubling the effect */
+}
+
+/* Lists directly inside headers */
+h4 ul, h4 ol, h3 ul, h3 ol, h2 ul, h2 ol {
+    margin-left: 30px; /* Ensure lists under headers are indented */
+    padding-left: 0;
+}
+
+/* Ordered list items with nested lists */
+ol > li > ul, ol > li > ol {
+    margin-top: 0.2em; /* Reduce top margin for nested lists under ordered items */
+    margin-bottom: 0.2em; /* Reduce bottom margin for nested lists */
+    margin-left: 30px; /* Ensure proper indentation */
+}
+
+/* Horizontal rules */
+hr {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 2em 0;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    width: 100%;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-align: left;
+}
