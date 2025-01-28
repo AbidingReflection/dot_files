@@ -1,0 +1,73 @@
+DROP VIEW IF EXISTS merged_comments_logs;
+
+CREATE VIEW merged_comments_logs AS
+
+WITH latest_test_logs AS (
+    SELECT
+        test_run_id,
+        MAX(id) AS max_id
+    FROM
+        test_logs
+    GROUP BY
+        test_run_id
+),
+
+filtered_test_logs AS (
+    SELECT
+        tl.*
+    FROM
+        test_logs tl
+    INNER JOIN
+        latest_test_logs ltl
+    ON
+        tl.test_run_id = ltl.test_run_id
+        AND tl.id = ltl.max_id
+),
+
+log_validations_aggregated AS (
+    SELECT
+        test_log_id,
+        GROUP_CONCAT(validation_feedback, CHAR(10)) AS log_validations
+    FROM
+        test_log_validations
+    GROUP BY
+        test_log_id
+),
+
+step_validations_aggregated AS (
+    SELECT
+        test_log_id,
+        GROUP_CONCAT(validation_feedback, CHAR(10)) AS step_validations
+    FROM
+        test_step_validations
+    GROUP BY
+        test_log_id
+)
+
+SELECT
+    qc.test_run_id,
+    ftl.id AS test_log_id,
+    ftl.result_number,
+    qc.comment_id,
+    qc.deleted_ts,
+    datetime(ftl.exe_start_date) AS exe_start_date_sortable,
+    datetime(ftl.exe_end_date) AS exe_end_date_sortable,
+    ftl.status,
+    lva.log_validations,
+    sva.step_validations
+FROM
+    qTest_comments qc
+LEFT JOIN
+    filtered_test_logs ftl
+ON
+    qc.test_run_id = ftl.test_run_id
+LEFT JOIN
+    log_validations_aggregated lva
+ON
+    ftl.id = lva.test_log_id
+LEFT JOIN
+    step_validations_aggregated sva
+ON
+    ftl.id = sva.test_log_id
+WHERE
+    qc.deleted_ts IS NULL;
