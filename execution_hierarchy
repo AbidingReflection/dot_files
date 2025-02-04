@@ -1,0 +1,76 @@
+    def execution_hierarchy_add_path(self, target:QtestTarget, df):
+        def generate_name_cache(df: pd.DataFrame)-> dict:
+            """Generate dict of hierarchy node IDs to their names and parent IDs."""
+            node_cache = {}
+            for _, row in df.iterrows():
+                node_cache[row["id"]] = {"name": row["name"],
+                                        "parentId": row["parentId"]}
+            return node_cache
+
+        def build_path(node_id, name_cache, target_prefix)->str:
+            """Build path string for a given node ID using name cache dict."""
+            depth_counter = 1
+            current_id = node_id
+            path = f''
+            while(current_id in name_cache):
+                if depth_counter > 100:
+                    raise RecursionError(f"Building execution_hierarchy node path seems to have resulted in a loop.  Path:{path}")
+                path = f'{name_cache[current_id]["name"]}\\{path}'
+                current_id = name_cache[current_id]["parentId"]
+                depth_counter +=1
+            path = f'{target_prefix}\\{path}'    
+            return path[0:-1]
+        
+        cache = generate_name_cache(df)
+        logging.debug(f"Inserting paths into Execution Hierarchy")
+        df['path'] = df['id'].apply(build_path, args=(cache, target.path_prefix,))
+
+        df['label'] = target.target_name
+        # print(df)
+        return df
+
+
+    def _process_execution_hierarchy(self, execution_hierarchy: dict)-> pd.DataFrame:
+        """Process a given execution hierarchy and return as DataFrame."""
+
+        def process_node(node:dict)-> dict:
+            """Process a hierarchy node and map its attributes based on the schema."""
+            reponse_fields = ["artifactType", "id", "name"]
+
+            output = {}
+            for field in reponse_fields:
+                if field not in node:
+                    output[field] = None
+                else:
+                    output[field] = node[field]
+            return output
+            
+        # schema = self.CONFIG["SCHEMA"]
+
+        logging.debug(f"Flattening Execution Hierarchy responses.")
+
+        hierarchy_nodes: List[dict] = []
+
+        # Initialize the list of nodes to process with the top-level node.
+        child_nodes: List[dict] = [{"children_list": execution_hierarchy["children"],
+                                    "parentId": execution_hierarchy["id"]}]
+
+        depth_counter = 0
+        while child_nodes and depth_counter < 100:
+            if depth_counter >= 100:
+                raise RecursionError("Flattening execution_hierarchy seems to have resulted in a loop.")
+            new_children: list = []
+            for hierarchy_node in child_nodes:
+                for child_node in hierarchy_node["children_list"]:
+                    node = process_node(child_node)
+                    node["parentId"] = hierarchy_node["parentId"]
+                    hierarchy_nodes.append(node)
+                    if "children" in child_node and child_node["children"]:
+                        new_children.append({"children_list": child_node["children"],
+                                            "parentId": child_node["id"]})
+            child_nodes = new_children
+            depth_counter += 1
+
+        df = pd.DataFrame(hierarchy_nodes)
+
+        return df
